@@ -483,16 +483,6 @@
                 <path d="M150 151 C142 153, 142 158, 150 160 C158 158, 158 153, 150 151Z" fill="#ff8f1f"/>
                 <ellipse cx="125" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(-8 125 250)"/>
                 <ellipse cx="175" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(8 175 250)"/>
-                <g transform="translate(210 150) scale(.9)">
-                  <path d="M20 8 C20 3, 16 0, 12 0 C9 0, 6 2, 5 5 C4 2, 1 0, -2 0 C-6 0, -10 3, -10 8 C-10 14, -3 18, 5 26 C13 18, 20 14, 20 8Z"
-                    fill="url(#gradMale)"/>
-                  <defs>
-                    <linearGradient id="gradMale" x1="0" y1="0" x2="0" y2="26">
-                      <stop offset="0" stop-color="#ff5ca8"/>
-                      <stop offset="1" stop-color="#ff86c2"/>
-                    </linearGradient>
-                  </defs>
-                </g>
               </svg>
             </div>
 
@@ -682,7 +672,7 @@
     yesLocked = false;
 
     maleWrap.classList.remove('walking');
-    maleWrap.style.left = '16%';
+    maleWrap.style.left = '10%';
 
     femaleWrap.style.opacity = '0';
     pebble.style.opacity = '0';
@@ -727,39 +717,29 @@
     showView(viewIntro);
   };
 
-  // ======= Shy No Button (SAFE AREA FIX) =======
+  // ======= Shy No Button (CLAMPED & PERSISTENT) =======
   noBtn.onmouseenter = () => {
   if (!noScootEnabled || yesLocked) return;
 
   const card = document.querySelector('.card').getBoundingClientRect();
-  const scene = document.querySelector('.scene').getBoundingClientRect();
   const btn = noBtn.getBoundingClientRect();
 
-  // Define safe bounds (exclude penguin scene)
-  const padding = 16;
+  const padding = 20;
 
-  const safeLeftMin = padding;
-  const safeLeftMax = scene.left - card.left - btn.width - padding;
+  // Clamp movement strictly inside the card
+  const minX = padding;
+  const maxX = card.width - btn.width - padding;
+  const minY = padding;
+  const maxY = card.height - btn.height - padding;
 
-  const safeRightMin = scene.right - card.left + padding;
-  const safeRightMax = card.width - btn.width - padding;
-
-  // Choose left zone OR right zone randomly
-  const useLeftZone = Math.random() < 0.5;
-
-  const x = useLeftZone
-    ? safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin)
-    : safeRightMin + Math.random() * Math.max(0, safeRightMax - safeRightMin);
-
-  const yMin = padding;
-  const yMax = card.height - btn.height - padding;
-  const y = yMin + Math.random() * (yMax - yMin);
+  const x = minX + Math.random() * (maxX - minX);
+  const y = minY + Math.random() * (maxY - minY);
 
   noBtn.style.position = 'absolute';
   noBtn.style.left = x + 'px';
   noBtn.style.top = y + 'px';
-  noBtn.style.zIndex = 100; // ensure clickable above penguin scene
-};
+  noBtn.style.zIndex = 100; // always clickable
+  };
 
   // ======= YES FLOW =======
   yesBtn.onclick = async () => {
