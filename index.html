@@ -653,10 +653,17 @@
   });
 
   // ======= Intro → Question =======
-  askBtn.onclick = () => {
+  askBtn.onclick = async () => {
     heartMode = 'love';
     showView(viewQuestion);
     vibrate(20);
+
+    // Start heartbeat immediately on Page 2
+    heartbeat.pause();
+    heartbeat.currentTime = 0;
+    heartbeat.volume = 0;
+    await heartbeat.play();
+    fadeAudio(heartbeat, 0.22, 900);
 
     noScootEnabled = false;
     setTimeout(() => noScootEnabled = true, 600);
@@ -670,13 +677,15 @@
     yesBtn.textContent = 'Yes!';
     yesLocked = false;
 
-    // Reset positions
     maleWrap.classList.remove('walking');
     maleWrap.style.left = '6%';
+
     femaleWrap.style.opacity = '0';
     pebble.style.opacity = '0';
 
-    speech.textContent = 'Cutie… will you be my Valentine?';
+    // Lower speech bubble slightly (≈ 50%)
+    speech.style.top = '28%';
+    speech.textContent = 'Hey cutie… will you be my Valentine? 💘';
     note.textContent = '';
   };
 
@@ -695,8 +704,8 @@
     await sadAudio.play();
     fadeAudio(sadAudio, 1, 800);
 
-    sadPlayBtn.textContent = 'Keep Walking';
-    sadStopBtn.textContent = 'manassu marchukundam';
+    sadPlayBtn.textContent = 'Keep Walking…';
+    sadStopBtn.textContent = 'sar… sarleev';
   };
 
   sadPlayBtn.onclick = async () => {
@@ -722,7 +731,7 @@
     noBtn.style.top = Math.random() * 55 + '%';
   };
 
-  // ======= YES FLOW (FIXED & CLEAN) =======
+  // ======= YES FLOW =======
   yesBtn.onclick = async () => {
     if (yesLocked) return;
     yesLocked = true;
@@ -730,21 +739,13 @@
     vibrate([30, 40, 30]);
     noBtn.style.display = 'none';
 
-    // Heartbeat ONLY until acceptance
-    heartbeat.volume = 0;
-    await heartbeat.play();
-    fadeAudio(heartbeat, 0.25, 600);
-
     speech.textContent = '…wait… really? 🥹💖';
 
-    // Ensure starting positions
-    maleWrap.classList.remove('walking');
-    maleWrap.style.left = '6%';
-
+    // Place female
     femaleWrap.style.left = '60%';
     femaleWrap.style.opacity = '1';
 
-    // Place pebble WITH male
+    // Place pebble with male
     const stageRect = stage.getBoundingClientRect();
     const maleRect = maleWrap.getBoundingClientRect();
 
@@ -752,14 +753,14 @@
     pebble.style.left = (maleRect.left - stageRect.left + 170) + 'px';
     pebble.style.top  = (maleRect.top  - stageRect.top  + 155) + 'px';
 
-    // 2-second dramatic pause
+    // Dramatic pause
     setTimeout(() => {
       speech.textContent = 'Okay… okay… I have something for you… 🪨✨';
       maleWrap.classList.add('walking');
       maleWrap.style.left = '38%';
     }, 2000);
 
-    // Pebble travels male → female
+    // Pebble transfer
     setTimeout(() => {
       pebble.style.opacity = '1';
 
@@ -767,7 +768,7 @@
       pebble.style.left = (femaleRect.left - stageRect.left + 60) + 'px';
       pebble.style.top  = (femaleRect.top  - stageRect.top  + 160) + 'px';
 
-      speech.textContent = 'Bujjieee… this is for you 💎';
+      speech.textContent = 'Bujjieee… for you 💎🐧';
     }, 3200);
 
     // Acceptance
@@ -777,7 +778,7 @@
 
       speech.textContent = 'She took it!! 😭💖';
 
-      // STOP heartbeat immediately
+      // Stop heartbeat completely
       fadeAudio(heartbeat, 0, 300);
       setTimeout(() => {
         heartbeat.pause();
@@ -786,6 +787,12 @@
 
       launchConfetti();
 
+      // Male politely steps back
+      setTimeout(() => {
+        maleWrap.style.left = '30%';
+      }, 400);
+
+      // Final line
       setTimeout(() => {
         speech.textContent = 'okay… that was adorable 🥹💗';
       }, 900);
