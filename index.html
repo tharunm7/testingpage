@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Will you be my Valentine?</title>
+  <title>Choose the right answer</title>
 
   <style>
     :root{
@@ -717,18 +717,24 @@
     showView(viewIntro);
   };
 
-    // ======= Shy No Button (CLAMPED, CLICKABLE, REACTIVE) =======
+    // ======= Shy No Button (HOVER + CLICK SAFE) =======
 
-  // Scoot on hover
-  noBtn.onmouseenter = () => {
+// Shared reaction (speech update)
+function reactToNo() {
+  if (yesLocked) return;
+
+  speech.textContent = 'Seems like you picked incorrect options';
+  vibrate(40);
+}
+
+// Move the button safely
+function scootNoButton() {
   if (!noScootEnabled || yesLocked) return;
 
   const card = document.querySelector('.card').getBoundingClientRect();
   const btn = noBtn.getBoundingClientRect();
-
   const padding = 20;
 
-  // Keep No fully inside the card
   const minX = padding;
   const maxX = card.width - btn.width - padding;
   const minY = padding;
@@ -740,19 +746,21 @@
   noBtn.style.position = 'absolute';
   noBtn.style.left = x + 'px';
   noBtn.style.top = y + 'px';
-  noBtn.style.zIndex = 100; // always above penguin scene
-  };
+  noBtn.style.zIndex = 100;
+}
 
-  // React on click (Page 2 only)
-  noBtn.onclick = () => {
-  if (yesLocked) return;
+// 🖱️ Desktop: hover
+noBtn.addEventListener('pointerenter', () => {
+  reactToNo();
+  scootNoButton();
+});
 
-  speech.textContent = 'Seems like you picked incorrect options';
-  vibrate(40);
-
-  // Optional: nudge it again so it still feels shy
-  noBtn.onmouseenter();
-  };
+// 📱 Mobile: tap / press
+noBtn.addEventListener('pointerdown', (e) => {
+  e.preventDefault(); // prevent click delay / ghost clicks
+  reactToNo();
+  scootNoButton();
+});
 
   // ======= YES FLOW =======
   yesBtn.onclick = async () => {
