@@ -7,17 +7,14 @@
 
 <style>
 :root{
-  --bg1:#0b1020;
-  --bg2:#101a3d;
-  --text:#f5f7ff;
-  --muted:rgba(245,247,255,.75);
+  --text:#ffffff;
+  --muted:rgba(255,255,255,.85);
   --yes:#3be08c;
   --no:#ff4d4d;
   --radius:22px;
 }
 
-*{box-sizing:border-box}
-
+/* 🌅 Cotton-candy Antarctic sunset */
 body{
   margin:0;
   min-height:100vh;
@@ -26,28 +23,32 @@ body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto;
   color:var(--text);
   background:
-    radial-gradient(1200px 800px at 20% 10%, rgba(255,92,168,.20), transparent 60%),
-    radial-gradient(900px 700px at 80% 20%, rgba(59,224,140,.10), transparent 55%),
-    linear-gradient(180deg,var(--bg1),var(--bg2));
+    linear-gradient(180deg,
+      #ffb3d9 0%,
+      #ffc6e6 20%,
+      #ffd6f2 40%,
+      #c7d2ff 60%,
+      #9bb7ff 80%,
+      #5a7bdc 100%);
   overflow:hidden;
 }
 
 .card{
   width:min(920px,92vw);
   padding:32px;
-  background:rgba(255,255,255,.08);
+  background:rgba(255,255,255,.12);
   border-radius:var(--radius);
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(14px);
   position:relative;
 }
 
-/* ---------- PAGE TRANSITION ---------- */
+/* Pages */
 .page{
   position:absolute;
   inset:32px;
   opacity:0;
   pointer-events:none;
-  transition:opacity .6s ease;
+  transition:opacity .7s ease;
 }
 .page.active{
   opacity:1;
@@ -55,7 +56,7 @@ body{
   position:relative;
 }
 
-/* ---------- LAYOUT ---------- */
+/* Layout */
 .layout{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -80,21 +81,20 @@ button{
 .yes{background:linear-gradient(#3be08c,#19c778)}
 .no{background:linear-gradient(#ff4d4d,#ff2a2a)}
 
-/* ---------- PENGUIN ---------- */
+/* Penguin */
 .scene{
   display:grid;
   place-items:center;
-  background:rgba(255,255,255,.06);
+  background:rgba(255,255,255,.15);
   border-radius:18px;
   padding:16px;
+  position:relative;
 }
-
 .penguin{
   width:260px;
-  transition:transform .3s ease;
+  transition:transform .4s ease,left 2s ease;
+  position:relative;
 }
-
-/* nervous penguin */
 .tensed{
   animation:tensed 1.2s infinite alternate;
 }
@@ -102,13 +102,11 @@ button{
   from{transform:rotate(-2deg)}
   to{transform:rotate(2deg) translateY(-6px)}
 }
-
-/* happy hover */
 .penguin:hover{
-  transform:scale(1.05) rotate(2deg);
+  transform:scale(1.06) rotate(2deg);
 }
 
-/* ---------- HEARTS ---------- */
+/* Hearts */
 .heart{
   position:fixed;
   left:var(--x);
@@ -122,59 +120,77 @@ button{
   to{opacity:0;transform:translate(-50%,-120%)}
 }
 
-/* ---------- SAD SCENE ---------- */
-#sadScene img{
-  max-width:600px;
-  width:100%;
-  border-radius:12px;
-  margin:20px auto;
-  display:block;
+/* Confetti */
+.confetti{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+}
+.confetti i{
+  position:absolute;
+  width:8px;height:14px;
+  background:white;
+  animation:fall 1400ms ease-in forwards;
+}
+@keyframes fall{
+  from{transform:translateY(-20px);opacity:0}
+  to{transform:translateY(110vh) rotate(260deg);opacity:0}
+}
+
+/* Pebble */
+.pebble{
+  position:absolute;
+  width:22px;height:16px;
+  background:radial-gradient(circle,#fff,#bfc9d9);
+  border-radius:50%;
+  box-shadow:0 0 12px rgba(255,255,255,.9);
+  animation:shine 1s infinite alternate;
+}
+@keyframes shine{
+  from{box-shadow:0 0 6px #fff}
+  to{box-shadow:0 0 16px #fff}
 }
 </style>
 </head>
 
 <body>
 
+<div class="confetti" id="confetti"></div>
+
 <main class="card">
 
-<!-- ================= PAGE 1 ================= -->
+<!-- PAGE 1 -->
 <section id="page1" class="page active">
   <div class="layout">
     <div></div>
-
     <div>
       <h1>Hey!!! Dr. Penguin 🐧</h1>
       <p>The most lovable penguin has a very very important question…</p>
-
       <div class="buttons">
         <button class="yes" id="askBtn">Okay, ask away 🐧</button>
         <button class="no" id="declineBtn">Not interested</button>
       </div>
     </div>
   </div>
-
   <div class="scene">
-    <img src="nihilist-penguin.gif" class="penguin tensed" alt="penguin"/>
+    <img src="nihilist-penguin.gif" class="penguin tensed" alt="penguin">
   </div>
-
   <div id="sadScene" style="display:none"></div>
 </section>
 
-<!-- ================= PAGE 2 ================= -->
+<!-- PAGE 2 -->
 <section id="page2" class="page">
   <div class="layout">
     <div>
-      <h1>What say? 💘</h1>
+      <h1>Will you be my Valentine? 💘</h1>
       <p>(Warning: the "No" button is… a little shy.)</p>
-
       <div class="buttons">
         <button class="yes" id="yesBtn">Yes!</button>
         <button class="no" id="noBtn">No</button>
       </div>
     </div>
-
-    <div class="scene">
-      <img src="nihilist-penguin.gif" class="penguin" alt="penguin"/>
+    <div class="scene" id="scene2">
+      <img src="nihilist-penguin.gif" class="penguin" id="malePenguin">
     </div>
   </div>
 </section>
@@ -182,13 +198,12 @@ button{
 </main>
 
 <script>
-/* ---------- STATE ---------- */
-let heartMode = 'love';
-let noScootEnabled = false;
+let heartMode='love',noScootEnabled=false;
+const sadScene=document.getElementById('sadScene');
 
-/* ---------- HEARTS ---------- */
+/* Hearts */
 document.addEventListener('pointerdown',e=>{
-  if(heartMode==='break' && !document.getElementById('sadScene').contains(e.target)) return;
+  if(heartMode==='break'&&!sadScene.contains(e.target))return;
   const h=document.createElement('div');
   h.className='heart';
   h.textContent=heartMode==='break'?'💔':'💖';
@@ -198,51 +213,42 @@ document.addEventListener('pointerdown',e=>{
   setTimeout(()=>h.remove(),900);
 });
 
-/* ---------- PAGE SWITCH ---------- */
+/* Page switch */
 const page1=document.getElementById('page1');
 const page2=document.getElementById('page2');
 document.getElementById('askBtn').onclick=()=>{
   page1.classList.remove('active');
   page2.classList.add('active');
-  heartMode='love';
-  noScootEnabled=false;
+  navigator.vibrate?.(30);
   setTimeout(()=>noScootEnabled=true,600);
 };
 
-/* ---------- SAD PATH ---------- */
+/* Sad path */
 document.getElementById('declineBtn').onclick=()=>{
   heartMode='break';
-  const sad=document.getElementById('sadScene');
-  sad.style.display='block';
-  sad.innerHTML='<p style="text-align:center;font-size:22px">oh… okay 😔</p>';
-
+  navigator.vibrate?.(80);
+  sadScene.style.display='block';
+  sadScene.innerHTML='<p style="text-align:center;font-size:22px">oh… okay 😔</p>';
   const img=document.createElement('img');
-  img.src='./nihilist-penguin.gif';
-  sad.appendChild(img);
+  img.src='nihilist-penguin.gif';
+  sadScene.appendChild(img);
 
-  const audio=new Audio('./LifeofRam.mp3');
-  audio.volume=0;
-  audio.currentTime=96;
+  const audio=new Audio('LifeofRam.mp3');
+  audio.volume=0;audio.currentTime=96;
   audio.addEventListener('timeupdate',()=>{if(audio.currentTime>118)audio.pause();});
 
   const btn=document.createElement('button');
   btn.textContent='🎵 Play music';
   btn.className='yes';
-  btn.style.display='block';
-  btn.style.margin='20px auto';
-
   btn.onclick=()=>{
     audio.play();
-    const fade=setInterval(()=>{
-      if(audio.volume<1)audio.volume+=0.05;
-      else clearInterval(fade);
-    },120);
+    const fade=setInterval(()=>{audio.volume=Math.min(1,audio.volume+.05)},120);
     btn.disabled=true;
   };
-  sad.appendChild(btn);
+  sadScene.appendChild(btn);
 };
 
-/* ---------- NO BUTTON SCOOT ---------- */
+/* No scoot */
 const noBtn=document.getElementById('noBtn');
 noBtn.onmouseenter=()=>{
   if(!noScootEnabled)return;
@@ -251,10 +257,36 @@ noBtn.onmouseenter=()=>{
   noBtn.style.top=Math.random()*60+'%';
 };
 
-/* ---------- YES ---------- */
+/* YES flow */
 document.getElementById('yesBtn').onclick=()=>{
-  alert("YAY!! 🥹💖 I'm the luckiest penguin ever!");
+  navigator.vibrate?.([30,40,30]);
+  launchConfetti();
+  const penguin=document.getElementById('malePenguin');
+
+  setTimeout(()=>{
+    penguin.style.left='60px';
+  },2000);
+
+  setTimeout(()=>{
+    const pebble=document.createElement('div');
+    pebble.className='pebble';
+    pebble.style.left='120px';
+    pebble.style.bottom='40px';
+    document.getElementById('scene2').appendChild(pebble);
+  },2600);
 };
+
+function launchConfetti(){
+  const c=document.getElementById('confetti');
+  c.innerHTML='';
+  for(let i=0;i<80;i++){
+    const p=document.createElement('i');
+    p.style.left=Math.random()*100+'vw';
+    p.style.animationDelay=Math.random()*300+'ms';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',1600);
+}
 </script>
 
 </body>
