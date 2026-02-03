@@ -73,19 +73,29 @@
       overflow:hidden;
       z-index:50;
     }
-    .confetti i{
-      position:absolute;
-      top:-14px;
-      width:8px; height:14px;
-      background:rgba(255,255,255,.95);
-      opacity:0;
-      border-radius:2px;
-      animation:fall 1400ms ease-in forwards;
+    .confetti i {
+    position: absolute;
+    top: -10px;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,.85);
+    opacity: 0;
+    border-radius: 50%;
+    animation: snowFall 4200ms linear forwards;
     }
-    @keyframes fall{
-      0%   { transform:translateY(-20px) rotate(0deg); opacity:0; }
-      15%  { opacity:1; }
-      100% { transform:translateY(110vh) rotate(260deg); opacity:0; }
+
+    @keyframes snowFall {
+    0% {
+    transform: translateY(-20px) translateX(0);
+    opacity: 0;
+    }
+    10% {
+    opacity: 1;
+    }
+    100% {
+    transform: translateY(110vh) translateX(40px);
+    opacity: 0;
+    }
     }
 
     .card{
@@ -723,13 +733,38 @@
     showView(viewIntro);
   };
 
-  // ======= Shy No Button =======
+  // ======= Shy No Button (SAFE AREA FIX) =======
   noBtn.onmouseenter = () => {
-    if (!noScootEnabled || yesLocked) return;
-    noBtn.style.position = 'absolute';
-    noBtn.style.left = Math.random() * 55 + '%';
-    noBtn.style.top = Math.random() * 55 + '%';
-  };
+  if (!noScootEnabled || yesLocked) return;
+
+  const card = document.querySelector('.card').getBoundingClientRect();
+  const scene = document.querySelector('.scene').getBoundingClientRect();
+  const btn = noBtn.getBoundingClientRect();
+
+  // Define safe bounds (exclude penguin scene)
+  const padding = 16;
+
+  const safeLeftMin = padding;
+  const safeLeftMax = scene.left - card.left - btn.width - padding;
+
+  const safeRightMin = scene.right - card.left + padding;
+  const safeRightMax = card.width - btn.width - padding;
+
+  // Choose left zone OR right zone randomly
+  const useLeftZone = Math.random() < 0.5;
+
+  const x = useLeftZone
+    ? safeLeftMin + Math.random() * Math.max(0, safeLeftMax - safeLeftMin)
+    : safeRightMin + Math.random() * Math.max(0, safeRightMax - safeRightMin);
+
+  const yMin = padding;
+  const yMax = card.height - btn.height - padding;
+  const y = yMin + Math.random() * (yMax - yMin);
+
+  noBtn.style.position = 'absolute';
+  noBtn.style.left = x + 'px';
+  noBtn.style.top = y + 'px';
+};
 
   // ======= YES FLOW =======
   yesBtn.onclick = async () => {
@@ -787,10 +822,16 @@
 
       launchConfetti();
 
-      // Male politely steps back
+      // Male politely steps back, then returns home
       setTimeout(() => {
-        maleWrap.style.left = '30%';
+      maleWrap.style.left = '30%';
       }, 400);
+
+      setTimeout(() => {
+      maleWrap.classList.remove('walking');
+      maleWrap.style.left = '6%'; // original position
+      }, 1600);
+
 
       // Final line
       setTimeout(() => {
