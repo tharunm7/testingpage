@@ -577,314 +577,164 @@
   <audio id="heartbeat" src="./heartbeat.mp3" preload="auto" loop></audio>
   <audio id="sadAudio" src="./LifeofRam.mp3" preload="auto"></audio>
 
-  <script>
-    // ======= Views =======
-    const viewIntro = document.getElementById('viewIntro');
-    const viewQuestion = document.getElementById('viewQuestion');
-    const viewSad = document.getElementById('viewSad');
+  <!-- ONLY THE <script> SECTION CHANGED — everything else remains identical -->
+<script>
+  // ======= Views =======
+  const viewIntro = document.getElementById('viewIntro');
+  const viewQuestion = document.getElementById('viewQuestion');
+  const viewSad = document.getElementById('viewSad');
 
-    // ======= UI elements =======
-    const askBtn = document.getElementById('askBtn');
-    const declineBtn = document.getElementById('declineBtn');
+  const askBtn = document.getElementById('askBtn');
+  const declineBtn = document.getElementById('declineBtn');
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
 
-    const yesBtn = document.getElementById('yesBtn');
-    const noBtn = document.getElementById('noBtn');
-    const note = document.getElementById('note');
-    const speech = document.getElementById('speech');
+  const speech = document.getElementById('speech');
+  const note = document.getElementById('note');
 
-    const stage = document.getElementById('stage');
-    const maleWrap = document.getElementById('maleWrap');
-    const femaleWrap = document.getElementById('femaleWrap');
-    const pebble = document.getElementById('pebble');
+  const maleWrap = document.getElementById('maleWrap');
+  const femaleWrap = document.getElementById('femaleWrap');
+  const pebble = document.getElementById('pebble');
+  const stage = document.getElementById('stage');
 
-    const finalOverlay = document.getElementById('finalOverlay');
-    const confetti = document.getElementById('confetti');
+  const sadPlayBtn = document.getElementById('sadPlayBtn');
+  const sadStopBtn = document.getElementById('sadStopBtn');
+  const sadAudio = document.getElementById('sadAudio');
+  const heartbeat = document.getElementById('heartbeat');
+  const confetti = document.getElementById('confetti');
 
-    // Sad
-    const sadBox = document.getElementById('sadBox');
-    const sadPlayBtn = document.getElementById('sadPlayBtn');
-    const sadStopBtn = document.getElementById('sadStopBtn');
-    const sadAudio = document.getElementById('sadAudio');
-    const sadStatus = document.getElementById('sadStatus');
+  let heartMode = 'love';
+  let noScootEnabled = false;
+  let yesLocked = false;
 
-    // Heartbeat
-    const heartbeat = document.getElementById('heartbeat');
+  function showView(v){
+    [viewIntro, viewQuestion, viewSad].forEach(x => x.classList.remove('active'));
+    v.classList.add('active');
+  }
 
-    // ======= State =======
-    let heartMode = 'love'; // 'love' | 'break'
-    let noScootEnabled = false;
-    let yesLocked = false;
+  function vibrate(p){ navigator.vibrate && navigator.vibrate(p); }
 
-    // ======= Helpers =======
-    function showView(viewToShow){
-      [viewIntro, viewQuestion, viewSad].forEach(v => v.classList.remove('active'));
-      viewToShow.classList.add('active');
-    }
+  // Hearts
+  document.addEventListener('pointerdown', e => {
+    if (heartMode === 'break' && !viewSad.contains(e.target)) return;
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = heartMode === 'break' ? '💔' : '💖';
+    h.style.setProperty('--x', e.clientX + 'px');
+    h.style.setProperty('--y', e.clientY + 'px');
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 900);
+  });
 
-    function vibrate(pattern){
-      if (navigator.vibrate) navigator.vibrate(pattern);
-    }
+  // Intro → Question
+  askBtn.onclick = () => {
+    heartMode = 'love';
+    showView(viewQuestion);
+    vibrate(20);
+    noScootEnabled = false;
+    setTimeout(() => noScootEnabled = true, 600);
+    noBtn.style.display = '';
+    yesBtn.disabled = false;
+    yesBtn.textContent = 'Yes!';
+    yesLocked = false;
+  };
 
-    function spawnHeart(e){
-      // 💔 only inside sad box when in break mode
-      if (heartMode === 'break' && !sadBox.contains(e.target)) return;
+  // Sad path
+  declineBtn.onclick = async () => {
+    heartMode = 'break';
+    showView(viewSad);
+    vibrate(80);
 
-      const h = document.createElement('div');
-      h.className = 'heart';
-      h.textContent = (heartMode === 'break') ? '💔' : '💖';
-      h.style.setProperty('--x', e.clientX + 'px');
-      h.style.setProperty('--y', e.clientY + 'px');
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), 950);
-    }
-    document.addEventListener('pointerdown', spawnHeart);
+    sadAudio.currentTime = 96;
+    sadAudio.volume = 0;
+    await sadAudio.play();
+    fadeAudio(sadAudio, 1, 800);
 
-    function launchConfetti(){
-      confetti.innerHTML = '';
-      const count = 90;
-      for (let i = 0; i < count; i++){
-        const piece = document.createElement('i');
-        piece.style.left = (Math.random() * 100) + 'vw';
-        piece.style.animationDelay = (Math.random() * 250) + 'ms';
-        piece.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
-        confetti.appendChild(piece);
-      }
-      setTimeout(() => confetti.innerHTML = '', 1650);
-    }
+    sadPlayBtn.textContent = 'Keep Walking…';
+    sadStopBtn.textContent = 'sar… sarleev';
+  };
 
-    function fadeAudioTo(audioEl, target, ms){
-      const start = audioEl.volume;
-      const steps = Math.max(1, Math.floor(ms / 40));
-      let i = 0;
-      const timer = setInterval(() => {
-        i++;
-        const t = i / steps;
-        audioEl.volume = Math.min(1, Math.max(0, start + (target - start) * t));
-        if (i >= steps) clearInterval(timer);
-      }, 40);
-    }
+  sadPlayBtn.onclick = async () => {
+    sadAudio.currentTime = 96;
+    sadAudio.volume = 0;
+    await sadAudio.play();
+    fadeAudio(sadAudio, 1, 800);
+  };
 
-    async function safePlay(audioEl){
-      try { await audioEl.play(); return true; }
-      catch { return false; }
-    }
+  sadStopBtn.onclick = () => {
+    fadeAudio(sadAudio, 0, 500);
+    setTimeout(() => sadAudio.pause(), 520);
+    heartMode = 'love';
+    showView(viewIntro);
+  };
 
-    // ======= No button scoot (armed after transition) =======
-    function scoot(){
-      if (!noScootEnabled || yesLocked) return;
+  // No scoot
+  noBtn.onmouseenter = () => {
+    if (!noScootEnabled || yesLocked) return;
+    noBtn.style.position = 'absolute';
+    noBtn.style.left = Math.random() * 55 + '%';
+    noBtn.style.top = Math.random() * 55 + '%';
+  };
 
-      const card = document.querySelector('.card').getBoundingClientRect();
-      const btn = noBtn.getBoundingClientRect();
+  // YES flow
+  yesBtn.onclick = async () => {
+    if (yesLocked) return;
+    yesLocked = true;
 
-      const maxX = card.width - btn.width - 24;
-      const maxY = card.height - btn.height - 24;
+    vibrate([30,40,30]);
+    noBtn.style.display = 'none';
 
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
+    heartbeat.volume = 0;
+    await heartbeat.play();
+    fadeAudio(heartbeat, 0.25, 800);
 
-      noBtn.style.position = 'absolute';
-      noBtn.style.left = (card.left + 12 + x) + 'px';
-      noBtn.style.top  = (card.top + 12 + y) + 'px';
-      noBtn.style.zIndex = 20;
+    speech.textContent = '…wait… really? 🥹💖';
 
-      speech.textContent = "Wait-noooo, try again 😅";
-      note.textContent = "The “No” button is too nervous to be pressed.";
-    }
-    noBtn.addEventListener('mouseenter', scoot);
-    noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); scoot(); }, { passive:false });
-    noBtn.addEventListener('click', scoot);
-
-    // ======= Intro -> Question =======
-    askBtn.addEventListener('click', () => {
-      heartMode = 'love';
-      showView(viewQuestion);
-      vibrate(25);
-
-      // prevent hover bleed: arm scoot after fade is settled
-      noScootEnabled = false;
-      setTimeout(() => { noScootEnabled = true; }, 650);
-
-      // reset any stray absolute positioning from previous runs
-      noBtn.style.position = 'relative';
-      noBtn.style.left = '';
-      noBtn.style.top = '';
-      noBtn.style.zIndex = '';
-      note.textContent = '';
-      speech.textContent = "Hey cutie… will you be my Valentine?";
-      yesLocked = false;
-
-      // reset stage positions
-      maleWrap.classList.remove('walking');
-      maleWrap.style.left = '42px';
-      femaleWrap.style.opacity = '0';
-      femaleWrap.style.transform = 'translateY(8px) scale(.98)';
-      pebble.style.opacity = '0';
-    });
-
-    // ======= Intro -> Sad =======
-    declineBtn.addEventListener('click', async () => {
-      heartMode = 'break';
-      showView(viewSad);
-      vibrate(80);
-
-      // stop heartbeat if it was playing
-      heartbeat.pause();
-      heartbeat.currentTime = 0;
-
-      // prep sad audio segment (1:36–1:58)
-      sadAudio.pause();
-      sadAudio.currentTime = 96;
-      sadAudio.volume = 0;
-      sadStatus.textContent = '';
-
-      // stop at 1:58
-      const stopAt = 118;
-      sadAudio.ontimeupdate = () => {
-        if (sadAudio.currentTime >= stopAt){
-          fadeAudioTo(sadAudio, 0, 350);
-          setTimeout(() => sadAudio.pause(), 360);
-        }
-      };
-
-      // optional auto-start (user gesture happened)
-      const ok = await safePlay(sadAudio);
-      if (ok){
-        fadeAudioTo(sadAudio, 1, 800);
-        sadPlayBtn.textContent = "🎵 Playing…";
-        sadPlayBtn.disabled = true;
-        sadPlayBtn.style.opacity = '0.75';
-      } else {
-        sadStatus.textContent = "Tap Play to start music.";
-      }
-    });
-
-    // Sad controls
-    sadPlayBtn.addEventListener('click', async () => {
-      sadAudio.pause();
-      sadAudio.currentTime = 96;
-      sadAudio.volume = 0;
-      const ok = await safePlay(sadAudio);
-      if (ok){
-        fadeAudioTo(sadAudio, 1, 800);
-        sadPlayBtn.textContent = "🎵 Playing…";
-        sadPlayBtn.disabled = true;
-        sadPlayBtn.style.opacity = '0.75';
-      } else {
-        sadStatus.textContent = "Browser blocked playback. Try again.";
-      }
-    });
-
-    sadStopBtn.addEventListener('click', () => {
-      fadeAudioTo(sadAudio, 0, 500);
-      setTimeout(() => {
-        sadAudio.pause();
-        sadAudio.currentTime = 96;
-      }, 520);
-
-      sadPlayBtn.disabled = false;
-      sadPlayBtn.style.opacity = '1';
-      sadPlayBtn.textContent = "🎵 Play (1:36–1:58)";
-    });
-
-    // ======= YES Flow (continuous story) =======
-    yesBtn.addEventListener('click', async () => {
-      if (yesLocked) return;
-      yesLocked = true;
-
-      vibrate([25, 45, 25]);
-
-      // Confetti ONLY after Yes (we start later at celebration beat)
-      // Start heartbeat subtly during emotional moments
-      heartbeat.volume = 0;
-      await safePlay(heartbeat);
-      fadeAudioTo(heartbeat, 0.25, 900);  // subtle
-
-      // Update UI
-      yesBtn.textContent = "YES! 💞";
-      yesBtn.disabled = true;
-      yesBtn.style.opacity = '0.82';
-      note.textContent = "";
-      speech.textContent = "…wait… really? 🥹💖";
-
-      // 2-second drama pause
-      setTimeout(() => {
-        speech.textContent = "Okay… okay… I have something for you… 🪨✨";
-      }, 800);
-
-      // After 2 seconds: walk + pebble
-      setTimeout(() => startGiftSequence(), 2000);
-    });
-
-    function startGiftSequence(){
-      // reveal female penguin gently
-      femaleWrap.style.opacity = '1';
-      femaleWrap.style.transform = 'translateY(0) scale(1)';
-
-      // walk towards her
+    setTimeout(() => {
       maleWrap.classList.add('walking');
+      maleWrap.style.left = '38%';
+      femaleWrap.style.opacity = '1';
+      femaleWrap.style.left = '56%';
 
-      // compute approximate target positions (works across widths)
-      const stageRect = stage.getBoundingClientRect();
-
-      // male target left closer to female
-      const maleTargetLeft = Math.max(160, Math.min(stageRect.width - 520, stageRect.width * 0.42));
-
-      // female stays on the right-ish; adjust if narrow
-      if (window.matchMedia('(max-width: 860px)').matches){
-        maleWrap.style.left = '18%';
-      } else {
-        maleWrap.style.left = `${maleTargetLeft}px`;
-      }
-
-      // place pebble near male hand, then fly to female
-      // initial pebble position (relative to stage)
-      const maleNow = maleWrap.getBoundingClientRect();
-      const pebbleStartX = (maleNow.left - stageRect.left) + 165;
-      const pebbleStartY = (maleNow.top - stageRect.top) + 155;
-
-      pebble.style.left = `${pebbleStartX}px`;
-      pebble.style.top  = `${pebbleStartY}px`;
       pebble.style.opacity = '1';
+      pebble.style.left = '46%';
+      pebble.style.top = '60%';
+    }, 2000);
 
-      // after a beat, “offer” pebble to female
+    setTimeout(() => {
+      speech.textContent = 'She took it!! 😭💖';
+      femaleWrap.classList.add('accept');
+
+      launchConfetti();
+      fadeAudio(heartbeat, 0, 800);
+
       setTimeout(() => {
-        speech.textContent = "Bujjieee… for you 💎🐧";
-        const femaleNow = femaleWrap.getBoundingClientRect();
-        const pebbleEndX = (femaleNow.left - stageRect.left) + 70;
-        const pebbleEndY = (femaleNow.top - stageRect.top) + 160;
+        speech.textContent = 'okay… that was adorable 🥹💗';
+      }, 900);
+    }, 3800);
+  };
 
-        pebble.style.left = `${pebbleEndX}px`;
-        pebble.style.top  = `${pebbleEndY}px`;
-      }, 700);
+  function fadeAudio(a, target, ms){
+    const step = 40;
+    const diff = target - a.volume;
+    const steps = ms / step;
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      a.volume += diff / steps;
+      if (i >= steps) clearInterval(t);
+    }, step);
+  }
 
-      // acceptance moment
-      setTimeout(() => {
-        femaleWrap.classList.add('accept');
-        setTimeout(() => femaleWrap.classList.remove('accept'), 800);
-        speech.textContent = "She took it!! 😭💖";
-
-        // celebration
-        launchConfetti();
-
-        // heartbeat fades out gently as we settle into happiness
-        fadeAudioTo(heartbeat, 0, 900);
-        setTimeout(() => { heartbeat.pause(); heartbeat.currentTime = 0; }, 950);
-
-        // final overlay
-        setTimeout(() => {
-          finalOverlay.classList.add('show');
-          vibrate(30);
-        }, 900);
-      }, 2400);
+  function launchConfetti(){
+    confetti.innerHTML = '';
+    for (let i = 0; i < 80; i++){
+      const c = document.createElement('i');
+      c.style.left = Math.random() * 100 + 'vw';
+      confetti.appendChild(c);
     }
-
-    // Safety: if user reloads while in question state, avoid instant scoot.
-    window.addEventListener('focus', () => {
-      if (viewQuestion.classList.contains('active')){
-        noScootEnabled = false;
-        setTimeout(() => { noScootEnabled = true; }, 450);
-      }
-    });
-  </script>
+    setTimeout(() => confetti.innerHTML = '', 1600);
+  }
+</script>
 </body>
 </html>
