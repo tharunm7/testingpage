@@ -553,8 +553,8 @@
     <section class="view" id="viewSad">
       <div class="layout">
         <div>
-          <h1>Evaru Akkarleedu ra naaku</h1>
-          <p>Puttetappudu kalisiputtama enti mawa...!!!</p>
+          <h1>Evaru akkarleedu ra naaku</h1>
+          <p>Puttetappudu kalisiputtama, poyetappudu kalisi pothama...!!!</p>
 
           <div class="buttons">
             <button class="yes" id="sadPlayBtn">🎵 Play (1:36–1:58)</button>
@@ -606,14 +606,42 @@
   let noScootEnabled = false;
   let yesLocked = false;
 
+  // ======= Helpers =======
   function showView(v){
     [viewIntro, viewQuestion, viewSad].forEach(x => x.classList.remove('active'));
     v.classList.add('active');
   }
 
-  function vibrate(p){ navigator.vibrate && navigator.vibrate(p); }
+  function vibrate(p){
+    if (navigator.vibrate) navigator.vibrate(p);
+  }
 
-  // Hearts
+  function fadeAudio(audio, target, ms){
+    const step = 40;
+    const diff = target - audio.volume;
+    const steps = Math.max(1, ms / step);
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      audio.volume += diff / steps;
+      if (i >= steps){
+        audio.volume = target;
+        clearInterval(timer);
+      }
+    }, step);
+  }
+
+  function launchConfetti(){
+    confetti.innerHTML = '';
+    for (let i = 0; i < 80; i++){
+      const c = document.createElement('i');
+      c.style.left = Math.random() * 100 + 'vw';
+      confetti.appendChild(c);
+    }
+    setTimeout(() => confetti.innerHTML = '', 1600);
+  }
+
+  // ======= Hearts =======
   document.addEventListener('pointerdown', e => {
     if (heartMode === 'break' && !viewSad.contains(e.target)) return;
     const h = document.createElement('div');
@@ -625,35 +653,55 @@
     setTimeout(() => h.remove(), 900);
   });
 
-  // Intro → Question
+  // ======= Intro → Question =======
   askBtn.onclick = () => {
     heartMode = 'love';
     showView(viewQuestion);
     vibrate(20);
+
     noScootEnabled = false;
     setTimeout(() => noScootEnabled = true, 600);
+
     noBtn.style.display = '';
+    noBtn.style.position = 'relative';
+    noBtn.style.left = '';
+    noBtn.style.top = '';
+
     yesBtn.disabled = false;
     yesBtn.textContent = 'Yes!';
     yesLocked = false;
+
+    // Reset positions
+    maleWrap.classList.remove('walking');
+    maleWrap.style.left = '6%';
+    femaleWrap.style.opacity = '0';
+    pebble.style.opacity = '0';
+
+    speech.textContent = 'Cutie… will you be my Valentine?';
+    note.textContent = '';
   };
 
-  // Sad path
+  // ======= Sad Path =======
   declineBtn.onclick = async () => {
     heartMode = 'break';
     showView(viewSad);
     vibrate(80);
 
+    heartbeat.pause();
+    heartbeat.currentTime = 0;
+
+    sadAudio.pause();
     sadAudio.currentTime = 96;
     sadAudio.volume = 0;
     await sadAudio.play();
     fadeAudio(sadAudio, 1, 800);
 
-    sadPlayBtn.textContent = 'Keep Walking…';
-    sadStopBtn.textContent = 'sar… sarleev';
+    sadPlayBtn.textContent = 'Keep Walking';
+    sadStopBtn.textContent = 'manassu marchukundam';
   };
 
   sadPlayBtn.onclick = async () => {
+    sadAudio.pause();
     sadAudio.currentTime = 96;
     sadAudio.volume = 0;
     await sadAudio.play();
@@ -667,7 +715,7 @@
     showView(viewIntro);
   };
 
-  // No scoot
+  // ======= Shy No Button =======
   noBtn.onmouseenter = () => {
     if (!noScootEnabled || yesLocked) return;
     noBtn.style.position = 'absolute';
@@ -675,65 +723,75 @@
     noBtn.style.top = Math.random() * 55 + '%';
   };
 
-  // YES flow
+  // ======= YES FLOW (FIXED & CLEAN) =======
   yesBtn.onclick = async () => {
     if (yesLocked) return;
     yesLocked = true;
 
-    vibrate([30,40,30]);
+    vibrate([30, 40, 30]);
     noBtn.style.display = 'none';
 
+    // Heartbeat ONLY until acceptance
     heartbeat.volume = 0;
     await heartbeat.play();
-    fadeAudio(heartbeat, 0.25, 800);
+    fadeAudio(heartbeat, 0.25, 600);
 
     speech.textContent = '…wait… really? 🥹💖';
 
+    // Ensure starting positions
+    maleWrap.classList.remove('walking');
+    maleWrap.style.left = '6%';
+
+    femaleWrap.style.left = '60%';
+    femaleWrap.style.opacity = '1';
+
+    // Place pebble WITH male
+    const stageRect = stage.getBoundingClientRect();
+    const maleRect = maleWrap.getBoundingClientRect();
+
+    pebble.style.opacity = '0';
+    pebble.style.left = (maleRect.left - stageRect.left + 170) + 'px';
+    pebble.style.top  = (maleRect.top  - stageRect.top  + 155) + 'px';
+
+    // 2-second dramatic pause
     setTimeout(() => {
+      speech.textContent = 'Okay… okay… I have something for you… 🪨✨';
       maleWrap.classList.add('walking');
       maleWrap.style.left = '38%';
-      femaleWrap.style.opacity = '1';
-      femaleWrap.style.left = '56%';
-
-      pebble.style.opacity = '1';
-      pebble.style.left = '46%';
-      pebble.style.top = '60%';
     }, 2000);
 
+    // Pebble travels male → female
     setTimeout(() => {
-      speech.textContent = 'She took it!! 😭💖';
+      pebble.style.opacity = '1';
+
+      const femaleRect = femaleWrap.getBoundingClientRect();
+      pebble.style.left = (femaleRect.left - stageRect.left + 60) + 'px';
+      pebble.style.top  = (femaleRect.top  - stageRect.top  + 160) + 'px';
+
+      speech.textContent = 'Bujjieee… this is for you 💎';
+    }, 3200);
+
+    // Acceptance
+    setTimeout(() => {
       femaleWrap.classList.add('accept');
+      setTimeout(() => femaleWrap.classList.remove('accept'), 700);
+
+      speech.textContent = 'She took it!! 😭💖';
+
+      // STOP heartbeat immediately
+      fadeAudio(heartbeat, 0, 300);
+      setTimeout(() => {
+        heartbeat.pause();
+        heartbeat.currentTime = 0;
+      }, 320);
 
       launchConfetti();
-      fadeAudio(heartbeat, 0, 800);
 
       setTimeout(() => {
         speech.textContent = 'okay… that was adorable 🥹💗';
       }, 900);
-    }, 3800);
+    }, 4700);
   };
-
-  function fadeAudio(a, target, ms){
-    const step = 40;
-    const diff = target - a.volume;
-    const steps = ms / step;
-    let i = 0;
-    const t = setInterval(() => {
-      i++;
-      a.volume += diff / steps;
-      if (i >= steps) clearInterval(t);
-    }, step);
-  }
-
-  function launchConfetti(){
-    confetti.innerHTML = '';
-    for (let i = 0; i < 80; i++){
-      const c = document.createElement('i');
-      c.style.left = Math.random() * 100 + 'vw';
-      confetti.appendChild(c);
-    }
-    setTimeout(() => confetti.innerHTML = '', 1600);
-  }
 </script>
 </body>
 </html>
