@@ -688,13 +688,13 @@
     yesLocked = false;
 
     maleWrap.classList.remove('walking');
-    maleWrap.style.left = '6%';
+    maleWrap.style.left = '16%';
 
     femaleWrap.style.opacity = '0';
     pebble.style.opacity = '0';
 
     // Lower speech bubble slightly (≈ 50%)
-    speech.style.top = '28%';
+    speech.style.top = '40%';
     speech.textContent = 'Hey cutie… will you be my Valentine? 💘';
     note.textContent = '';
   };
@@ -714,8 +714,8 @@
     await sadAudio.play();
     fadeAudio(sadAudio, 1, 800);
 
-    sadPlayBtn.textContent = 'Keep Walking…';
-    sadStopBtn.textContent = 'sar… sarleev';
+    sadPlayBtn.textContent = 'Keep Walking';
+    sadStopBtn.textContent = 'manassu marchukundam';
   };
 
   sadPlayBtn.onclick = async () => {
