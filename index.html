@@ -1,293 +1,893 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Will you be my Valentine?</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Will you be my Valentine?</title>
 
-<style>
-:root{
-  --text:#ffffff;
-  --muted:rgba(255,255,255,.85);
-  --yes:#3be08c;
-  --no:#ff4d4d;
-  --radius:22px;
-}
+  <style>
+    :root{
+      --text:#ffffff;
+      --muted:rgba(255,255,255,.82);
+      --glass:rgba(255,255,255,.16);
+      --glass2:rgba(255,255,255,.10);
+      --border:rgba(255,255,255,.22);
+      --shadow:0 24px 70px rgba(0,0,0,.25);
 
-/* 🌅 Cotton-candy Antarctic sunset */
-body{
-  margin:0;
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  color:var(--text);
-  background:
-    linear-gradient(180deg,
-      #ffb3d9 0%,
-      #ffc6e6 20%,
-      #ffd6f2 40%,
-      #c7d2ff 60%,
-      #9bb7ff 80%,
-      #5a7bdc 100%);
-  overflow:hidden;
-}
+      --yes:#3be08c;
+      --no:#ff4d4d;
 
-.card{
-  width:min(920px,92vw);
-  padding:32px;
-  background:rgba(255,255,255,.12);
-  border-radius:var(--radius);
-  backdrop-filter:blur(14px);
-  position:relative;
-}
+      --pink:#ff5ca8;
+      --pink2:#ff86c2;
 
-/* Pages */
-.page{
-  position:absolute;
-  inset:32px;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .7s ease;
-}
-.page.active{
-  opacity:1;
-  pointer-events:auto;
-  position:relative;
-}
+      --radius:24px;
+    }
 
-/* Layout */
-.layout{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:24px;
-  align-items:center;
-}
-@media(max-width:800px){
-  .layout{grid-template-columns:1fr}
-}
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      overflow:hidden;
 
-h1{margin:0 0 8px}
-p{color:var(--muted)}
+      /* 🌅 Cotton-candy Antarctic sunset */
+      background:
+        radial-gradient(1200px 900px at 20% 10%, rgba(255,130,210,.40), transparent 60%),
+        radial-gradient(900px 700px at 80% 20%, rgba(255,210,245,.35), transparent 55%),
+        radial-gradient(900px 700px at 60% 70%, rgba(165,190,255,.35), transparent 60%),
+        linear-gradient(180deg,
+          #ffb3d9 0%,
+          #ffd1ea 22%,
+          #efe1ff 45%,
+          #c5d2ff 68%,
+          #7aa0ef 100%);
+    }
 
-.buttons{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
-button{
-  border:0;
-  border-radius:999px;
-  padding:12px 18px;
-  font-weight:700;
-  cursor:pointer;
-}
-.yes{background:linear-gradient(#3be08c,#19c778)}
-.no{background:linear-gradient(#ff4d4d,#ff2a2a)}
+    /* ❄️ Snowfall sparkle overlay */
+    .snow{
+      position:fixed; inset:-40px;
+      pointer-events:none;
+      opacity:.55;
+      filter: blur(.2px);
+      background-image:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.75) 50%, transparent 60%),
+        radial-gradient(1.5px 1.5px at 35% 80%, rgba(255,255,255,.55) 50%, transparent 60%),
+        radial-gradient(2px 2px at 65% 35%, rgba(255,255,255,.65) 50%, transparent 60%),
+        radial-gradient(1.2px 1.2px at 85% 60%, rgba(255,255,255,.45) 50%, transparent 60%),
+        radial-gradient(1.6px 1.6px at 25% 55%, rgba(255,255,255,.55) 50%, transparent 60%),
+        radial-gradient(1.2px 1.2px at 55% 15%, rgba(255,255,255,.50) 50%, transparent 60%),
+        radial-gradient(1.6px 1.6px at 75% 90%, rgba(255,255,255,.45) 50%, transparent 60%);
+      animation:snowDrift 10s linear infinite;
+    }
+    @keyframes snowDrift{
+      from{ transform: translateY(-18px); }
+      to  { transform: translateY(18px); }
+    }
 
-/* Penguin */
-.scene{
-  display:grid;
-  place-items:center;
-  background:rgba(255,255,255,.15);
-  border-radius:18px;
-  padding:16px;
-  position:relative;
-}
-.penguin{
-  width:260px;
-  transition:transform .4s ease,left 2s ease;
-  position:relative;
-}
-.tensed{
-  animation:tensed 1.2s infinite alternate;
-}
-@keyframes tensed{
-  from{transform:rotate(-2deg)}
-  to{transform:rotate(2deg) translateY(-6px)}
-}
-.penguin:hover{
-  transform:scale(1.06) rotate(2deg);
-}
+    .confetti{
+      position:fixed; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:50;
+    }
+    .confetti i{
+      position:absolute;
+      top:-14px;
+      width:8px; height:14px;
+      background:rgba(255,255,255,.95);
+      opacity:0;
+      border-radius:2px;
+      animation:fall 1400ms ease-in forwards;
+    }
+    @keyframes fall{
+      0%   { transform:translateY(-20px) rotate(0deg); opacity:0; }
+      15%  { opacity:1; }
+      100% { transform:translateY(110vh) rotate(260deg); opacity:0; }
+    }
 
-/* Hearts */
-.heart{
-  position:fixed;
-  left:var(--x);
-  top:var(--y);
-  font-size:24px;
-  pointer-events:none;
-  animation:float 900ms ease-out forwards;
-}
-@keyframes float{
-  from{opacity:1;transform:translate(-50%,-50%)}
-  to{opacity:0;transform:translate(-50%,-120%)}
-}
+    .card{
+      width:min(980px, 92vw);
+      background:linear-gradient(180deg, var(--glass), var(--glass2));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(16px);
+      padding: clamp(18px, 3vw, 34px);
+      position:relative;
+      overflow:hidden;
+    }
 
-/* Confetti */
-.confetti{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-}
-.confetti i{
-  position:absolute;
-  width:8px;height:14px;
-  background:white;
-  animation:fall 1400ms ease-in forwards;
-}
-@keyframes fall{
-  from{transform:translateY(-20px);opacity:0}
-  to{transform:translateY(110vh) rotate(260deg);opacity:0}
-}
+    /* ====== “Pages” (continuous flow via state machine + fades) ====== */
+    .view{
+      opacity:0;
+      pointer-events:none;
+      transform: translateY(6px);
+      transition: opacity .7s ease, transform .7s ease;
+      position:absolute;
+      inset: clamp(18px, 3vw, 34px);
+    }
+    .view.active{
+      opacity:1;
+      pointer-events:auto;
+      transform: translateY(0);
+      position:relative;
+      inset:auto;
+    }
 
-/* Pebble */
-.pebble{
-  position:absolute;
-  width:22px;height:16px;
-  background:radial-gradient(circle,#fff,#bfc9d9);
-  border-radius:50%;
-  box-shadow:0 0 12px rgba(255,255,255,.9);
-  animation:shine 1s infinite alternate;
-}
-@keyframes shine{
-  from{box-shadow:0 0 6px #fff}
-  to{box-shadow:0 0 16px #fff}
-}
-</style>
+    .layout{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: clamp(16px, 2.5vw, 28px);
+      align-items:center;
+    }
+    @media (max-width: 860px){
+      .layout{ grid-template-columns:1fr; text-align:center; }
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size: clamp(30px, 4.3vw, 50px);
+      letter-spacing: -.02em;
+      line-height:1.05;
+      text-shadow: 0 10px 40px rgba(0,0,0,.18);
+    }
+    p{
+      margin:0;
+      color:var(--muted);
+      font-size: clamp(14px, 1.6vw, 18px);
+      line-height:1.5;
+    }
+
+    .buttons{
+      display:flex;
+      gap:12px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+    @media (max-width: 860px){
+      .buttons{ justify-content:center; }
+    }
+
+    button{
+      appearance:none;
+      border:0;
+      border-radius:999px;
+      padding:12px 18px;
+      font-weight:800;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, filter .12s ease, opacity .2s ease;
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+
+    .yes{
+      background: linear-gradient(180deg, var(--yes), #19c778);
+      color:#06140c;
+      box-shadow: 0 14px 34px rgba(59,224,140,.25);
+    }
+    .no{
+      background: linear-gradient(180deg, var(--no), #ff2a2a);
+      color:#230606;
+      box-shadow: 0 14px 34px rgba(255,77,77,.20);
+      position:relative;
+    }
+
+    /* ====== Scene panels ====== */
+    .scene{
+      display:grid;
+      place-items:center;
+      padding:14px;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.07));
+      border:1px solid rgba(255,255,255,.18);
+      position:relative;
+      overflow:hidden;
+      min-height: 330px;
+    }
+
+    .speech{
+      position:absolute;
+      top:16px; right:16px;
+      background: rgba(255,255,255,.92);
+      color:#111827;
+      border-radius:18px;
+      padding:10px 12px;
+      max-width: 280px;
+      box-shadow: 0 14px 35px rgba(0,0,0,.25);
+      font-weight:800;
+      font-size:14px;
+      transform-origin: 80% 0%;
+      animation: pop 1.4s ease-in-out infinite;
+      z-index:3;
+    }
+    .speech::after{
+      content:"";
+      position:absolute;
+      bottom:-10px; left: 24px;
+      width: 18px; height: 18px;
+      background: rgba(255,255,255,.92);
+      transform: rotate(45deg);
+      border-radius: 4px;
+    }
+    @keyframes pop{
+      0%,100% { transform: translateY(0) rotate(-1deg); }
+      50%     { transform: translateY(-3px) rotate(1deg); }
+    }
+
+    /* ====== Penguin stage ====== */
+    .stage{
+      width:100%;
+      height: 330px;
+      position:relative;
+      display:block;
+    }
+
+    /* We use SVG penguins for reliability; GIF used in sad scene & as optional fallback. */
+    .penguinWrap{
+      position:absolute;
+      bottom: 24px;
+      width: 240px;
+      transition: transform .3s ease, left 2.0s ease, opacity .8s ease;
+      will-change: transform, left, opacity;
+    }
+    #maleWrap{ left: 42px; }
+    #femaleWrap{ left: 560px; opacity:0; transform: translateY(8px) scale(.98); }
+    @media (max-width: 860px){
+      #femaleWrap{ left: 52%; transform: translateX(-10%) translateY(8px) scale(.98); }
+      #maleWrap{ left: 12%; }
+    }
+
+    /* Page 1: nervous wobble */
+    .nervous{
+      animation: nervous 1.1s ease-in-out infinite alternate;
+      transform-origin: 50% 90%;
+    }
+    @keyframes nervous{
+      from{ transform: rotate(-2deg) translateY(0); }
+      to  { transform: rotate(2deg) translateY(-6px); }
+    }
+
+    /* Page 2: happy hover reaction */
+    .happyHover:hover{
+      transform: translateY(-6px) scale(1.03) rotate(2deg);
+    }
+
+    /* Walk: we animate left via JS, add tiny bob while walking */
+    .walking{
+      animation: walkBob .22s ease-in-out infinite alternate;
+    }
+    @keyframes walkBob{
+      from{ transform: translateY(0); }
+      to  { transform: translateY(-3px); }
+    }
+
+    /* Female acceptance */
+    .accept{
+      animation: accept 700ms ease-out 1;
+    }
+    @keyframes accept{
+      0%   { transform: translateY(8px) scale(.98); }
+      45%  { transform: translateY(-10px) scale(1.02); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    /* Pebble */
+    .pebble{
+      position:absolute;
+      width: 22px; height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #c6cfdf 55%, #8ea0bd 100%);
+      box-shadow: 0 0 14px rgba(255,255,255,.95);
+      animation: shine 1s ease-in-out infinite alternate;
+      opacity:0;
+      transition: opacity .3s ease, left 1.6s ease, top 1.6s ease;
+      z-index:4;
+    }
+    @keyframes shine{
+      from{ box-shadow: 0 0 8px rgba(255,255,255,.85); transform: scale(1); }
+      to  { box-shadow: 0 0 18px rgba(255,255,255,1); transform: scale(1.05); }
+    }
+
+    /* Final overlay */
+    .finalOverlay{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      background: rgba(255,255,255,.08);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .8s ease;
+      z-index:60;
+    }
+    .finalOverlay.show{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .finalCard{
+      text-align:center;
+      padding: 22px 22px;
+      border-radius: 20px;
+      border:1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.14);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 24px 70px rgba(0,0,0,.25);
+      width: min(560px, 90%);
+    }
+    .finalCard h2{
+      margin:0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing:-.02em;
+    }
+    .finalCard p{
+      margin:0;
+      color: rgba(255,255,255,.85);
+    }
+
+    /* Hearts */
+    .heart{
+      position:fixed;
+      left:var(--x);
+      top:var(--y);
+      font-size:24px;
+      pointer-events:none;
+      opacity:0;
+      animation: floatUp 900ms ease-out forwards;
+      user-select:none;
+      z-index:80;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.15));
+    }
+    @keyframes floatUp{
+      0%   { opacity:0; transform: translate(-50%,-50%) scale(.95); }
+      15%  { opacity:1; }
+      100% { opacity:0; transform: translate(-50%, calc(-50% - 80px)) scale(1.12); }
+    }
+
+    /* Sad view media area */
+    .sadBox{
+      margin-top: 18px;
+      text-align:center;
+    }
+    .sadBox img{
+      max-width: 640px;
+      width:100%;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 22px 60px rgba(0,0,0,.18);
+      display:block;
+      margin: 14px auto;
+    }
+
+    .smallNote{
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,.75);
+    }
+  </style>
 </head>
 
 <body>
+  <div class="snow"></div>
+  <div class="confetti" id="confetti"></div>
 
-<div class="confetti" id="confetti"></div>
-
-<main class="card">
-
-<!-- PAGE 1 -->
-<section id="page1" class="page active">
-  <div class="layout">
-    <div></div>
-    <div>
-      <h1>Hey!!! Dr. Penguin 🐧</h1>
-      <p>The most lovable penguin has a very very important question…</p>
-      <div class="buttons">
-        <button class="yes" id="askBtn">Okay, ask away 🐧</button>
-        <button class="no" id="declineBtn">Not interested</button>
+  <main class="card">
+    <!-- Final overlay (continuous, not a separate “page”) -->
+    <div class="finalOverlay" id="finalOverlay">
+      <div class="finalCard">
+        <h2>It’s a date 💞</h2>
+        <p>Okay. That was adorable. 🐧🌅</p>
       </div>
     </div>
-  </div>
-  <div class="scene">
-    <img src="nihilist-penguin.gif" class="penguin tensed" alt="penguin">
-  </div>
-  <div id="sadScene" style="display:none"></div>
-</section>
 
-<!-- PAGE 2 -->
-<section id="page2" class="page">
-  <div class="layout">
-    <div>
-      <h1>Will you be my Valentine? 💘</h1>
-      <p>(Warning: the "No" button is… a little shy.)</p>
-      <div class="buttons">
-        <button class="yes" id="yesBtn">Yes!</button>
-        <button class="no" id="noBtn">No</button>
+    <!-- VIEW: Intro -->
+    <section class="view active" id="viewIntro">
+      <div class="layout">
+        <div></div>
+        <div>
+          <h1>Hey!!! Dr. Penguin 🐧</h1>
+          <p>
+            The most lovable penguin has a very very important question for his most favorite person...
+            <br><em>(Warning: the “No” button is… a little shy.)</em>
+          </p>
+
+          <div class="buttons">
+            <button class="yes" id="askBtn">Okay, ask away 🐧</button>
+            <button class="no" id="declineBtn">Not interested</button>
+          </div>
+
+          <div class="smallNote">💖 Tap anywhere for hearts.</div>
+        </div>
       </div>
-    </div>
-    <div class="scene" id="scene2">
-      <img src="nihilist-penguin.gif" class="penguin" id="malePenguin">
-    </div>
-  </div>
-</section>
 
-</main>
+      <div class="scene" style="margin-top:18px;">
+        <div class="speech">He’s a little nervous… 😳</div>
 
-<script>
-let heartMode='love',noScootEnabled=false;
-const sadScene=document.getElementById('sadScene');
+        <div class="stage" aria-label="penguin stage intro">
+          <!-- Male penguin (SVG) -->
+          <div class="penguinWrap nervous" id="maleWrapIntro" style="left: calc(50% - 120px);">
+            <svg width="240" height="260" viewBox="0 0 300 300" role="img" aria-label="penguin">
+              <ellipse cx="150" cy="250" rx="110" ry="28" fill="rgba(255,255,255,.18)"/>
+              <ellipse cx="150" cy="258" rx="90" ry="20" fill="rgba(255,255,255,.12)"/>
+              <ellipse cx="150" cy="165" rx="78" ry="92" fill="#0b1222"/>
+              <ellipse cx="150" cy="185" rx="52" ry="68" fill="#f2f4ff"/>
+              <ellipse cx="120" cy="135" rx="16" ry="12" fill="rgba(255,92,168,.22)"/>
+              <ellipse cx="180" cy="135" rx="16" ry="12" fill="rgba(255,92,168,.22)"/>
+              <ellipse cx="86" cy="178" rx="24" ry="52" fill="#0b1222" transform="rotate(18 86 178)"/>
+              <ellipse cx="214" cy="178" rx="24" ry="52" fill="#0b1222" transform="rotate(-18 214 178)"/>
+              <circle cx="128" cy="130" r="10" fill="#0a0a0a"/>
+              <circle cx="172" cy="130" r="10" fill="#0a0a0a"/>
+              <circle cx="124" cy="126" r="3" fill="#ffffff"/>
+              <circle cx="168" cy="126" r="3" fill="#ffffff"/>
+              <path d="M150 140 C140 144, 136 154, 150 160 C164 154, 160 144, 150 140Z" fill="#ffb23a"/>
+              <path d="M150 151 C142 153, 142 158, 150 160 C158 158, 158 153, 150 151Z" fill="#ff8f1f"/>
+              <ellipse cx="125" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(-8 125 250)"/>
+              <ellipse cx="175" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(8 175 250)"/>
+              <g transform="translate(210 150) scale(.9)">
+                <path d="M20 8 C20 3, 16 0, 12 0 C9 0, 6 2, 5 5 C4 2, 1 0, -2 0 C-6 0, -10 3, -10 8 C-10 14, -3 18, 5 26 C13 18, 20 14, 20 8Z"
+                      fill="url(#gradIntro)"/>
+                <defs>
+                  <linearGradient id="gradIntro" x1="0" y1="0" x2="0" y2="26">
+                    <stop offset="0" stop-color="#ff5ca8"/>
+                    <stop offset="1" stop-color="#ff86c2"/>
+                  </linearGradient>
+                </defs>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
 
-/* Hearts */
-document.addEventListener('pointerdown',e=>{
-  if(heartMode==='break'&&!sadScene.contains(e.target))return;
-  const h=document.createElement('div');
-  h.className='heart';
-  h.textContent=heartMode==='break'?'💔':'💖';
-  h.style.setProperty('--x',e.clientX+'px');
-  h.style.setProperty('--y',e.clientY+'px');
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),900);
-});
+    <!-- VIEW: Question -->
+    <section class="view" id="viewQuestion">
+      <div class="layout">
+        <div>
+          <h1>Will you be my Valentine? 💘</h1>
+          <p>(Warning: the “No” button is… a little shy.)</p>
 
-/* Page switch */
-const page1=document.getElementById('page1');
-const page2=document.getElementById('page2');
-document.getElementById('askBtn').onclick=()=>{
-  page1.classList.remove('active');
-  page2.classList.add('active');
-  navigator.vibrate?.(30);
-  setTimeout(()=>noScootEnabled=true,600);
-};
+          <div class="buttons">
+            <button class="yes" id="yesBtn">Yes!</button>
+            <button class="no" id="noBtn">No</button>
+          </div>
 
-/* Sad path */
-document.getElementById('declineBtn').onclick=()=>{
-  heartMode='break';
-  navigator.vibrate?.(80);
-  sadScene.style.display='block';
-  sadScene.innerHTML='<p style="text-align:center;font-size:22px">oh… okay 😔</p>';
-  const img=document.createElement('img');
-  img.src='nihilist-penguin.gif';
-  sadScene.appendChild(img);
+          <div class="smallNote" id="note"></div>
+        </div>
 
-  const audio=new Audio('LifeofRam.mp3');
-  audio.volume=0;audio.currentTime=96;
-  audio.addEventListener('timeupdate',()=>{if(audio.currentTime>118)audio.pause();});
+        <div class="scene">
+          <div class="speech" id="speech">Hey cutie… will you be my Valentine?</div>
 
-  const btn=document.createElement('button');
-  btn.textContent='🎵 Play music';
-  btn.className='yes';
-  btn.onclick=()=>{
-    audio.play();
-    const fade=setInterval(()=>{audio.volume=Math.min(1,audio.volume+.05)},120);
-    btn.disabled=true;
-  };
-  sadScene.appendChild(btn);
-};
+          <div class="stage" id="stage">
+            <!-- Pebble -->
+            <div class="pebble" id="pebble" aria-hidden="true"></div>
 
-/* No scoot */
-const noBtn=document.getElementById('noBtn');
-noBtn.onmouseenter=()=>{
-  if(!noScootEnabled)return;
-  noBtn.style.position='absolute';
-  noBtn.style.left=Math.random()*60+'%';
-  noBtn.style.top=Math.random()*60+'%';
-};
+            <!-- Male penguin -->
+            <div class="penguinWrap happyHover" id="maleWrap">
+              <svg width="240" height="260" viewBox="0 0 300 300" role="img" aria-label="penguin">
+                <ellipse cx="150" cy="250" rx="110" ry="28" fill="rgba(255,255,255,.18)"/>
+                <ellipse cx="150" cy="258" rx="90" ry="20" fill="rgba(255,255,255,.12)"/>
+                <ellipse cx="150" cy="165" rx="78" ry="92" fill="#0b1222"/>
+                <ellipse cx="150" cy="185" rx="52" ry="68" fill="#f2f4ff"/>
+                <ellipse cx="120" cy="135" rx="16" ry="12" fill="rgba(255,92,168,.20)"/>
+                <ellipse cx="180" cy="135" rx="16" ry="12" fill="rgba(255,92,168,.20)"/>
+                <ellipse cx="86" cy="178" rx="24" ry="52" fill="#0b1222" transform="rotate(18 86 178)"/>
+                <ellipse cx="214" cy="178" rx="24" ry="52" fill="#0b1222" transform="rotate(-18 214 178)"/>
+                <circle cx="128" cy="130" r="10" fill="#0a0a0a"/>
+                <circle cx="172" cy="130" r="10" fill="#0a0a0a"/>
+                <circle cx="124" cy="126" r="3" fill="#ffffff"/>
+                <circle cx="168" cy="126" r="3" fill="#ffffff"/>
+                <path d="M150 140 C140 144, 136 154, 150 160 C164 154, 160 144, 150 140Z" fill="#ffb23a"/>
+                <path d="M150 151 C142 153, 142 158, 150 160 C158 158, 158 153, 150 151Z" fill="#ff8f1f"/>
+                <ellipse cx="125" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(-8 125 250)"/>
+                <ellipse cx="175" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(8 175 250)"/>
+                <g transform="translate(210 150) scale(.9)">
+                  <path d="M20 8 C20 3, 16 0, 12 0 C9 0, 6 2, 5 5 C4 2, 1 0, -2 0 C-6 0, -10 3, -10 8 C-10 14, -3 18, 5 26 C13 18, 20 14, 20 8Z"
+                        fill="url(#gradMale)"/>
+                  <defs>
+                    <linearGradient id="gradMale" x1="0" y1="0" x2="0" y2="26">
+                      <stop offset="0" stop-color="#ff5ca8"/>
+                      <stop offset="1" stop-color="#ff86c2"/>
+                    </linearGradient>
+                  </defs>
+                </g>
+              </svg>
+            </div>
 
-/* YES flow */
-document.getElementById('yesBtn').onclick=()=>{
-  navigator.vibrate?.([30,40,30]);
-  launchConfetti();
-  const penguin=document.getElementById('malePenguin');
+            <!-- Female penguin (lighter tone, bow/scarf, blush) -->
+            <div class="penguinWrap" id="femaleWrap" aria-hidden="true">
+              <svg width="240" height="260" viewBox="0 0 300 300" role="img" aria-label="penguin (female)">
+                <ellipse cx="150" cy="250" rx="110" ry="28" fill="rgba(255,255,255,.18)"/>
+                <ellipse cx="150" cy="258" rx="90" ry="20" fill="rgba(255,255,255,.12)"/>
 
-  setTimeout(()=>{
-    penguin.style.left='60px';
-  },2000);
+                <!-- body (lighter) -->
+                <ellipse cx="150" cy="165" rx="78" ry="92" fill="#18213b"/>
+                <!-- belly -->
+                <ellipse cx="150" cy="185" rx="52" ry="68" fill="#fff3fb"/>
 
-  setTimeout(()=>{
-    const pebble=document.createElement('div');
-    pebble.className='pebble';
-    pebble.style.left='120px';
-    pebble.style.bottom='40px';
-    document.getElementById('scene2').appendChild(pebble);
-  },2600);
-};
+                <!-- blush -->
+                <ellipse cx="120" cy="140" rx="16" ry="12" fill="rgba(255,92,168,.28)"/>
+                <ellipse cx="180" cy="140" rx="16" ry="12" fill="rgba(255,92,168,.28)"/>
 
-function launchConfetti(){
-  const c=document.getElementById('confetti');
-  c.innerHTML='';
-  for(let i=0;i<80;i++){
-    const p=document.createElement('i');
-    p.style.left=Math.random()*100+'vw';
-    p.style.animationDelay=Math.random()*300+'ms';
-    c.appendChild(p);
-  }
-  setTimeout(()=>c.innerHTML='',1600);
-}
-</script>
+                <!-- wings -->
+                <ellipse cx="86" cy="178" rx="24" ry="52" fill="#18213b" transform="rotate(18 86 178)"/>
+                <ellipse cx="214" cy="178" rx="24" ry="52" fill="#18213b" transform="rotate(-18 214 178)"/>
 
+                <!-- eyes -->
+                <circle cx="128" cy="130" r="10" fill="#0a0a0a"/>
+                <circle cx="172" cy="130" r="10" fill="#0a0a0a"/>
+                <circle cx="124" cy="126" r="3" fill="#ffffff"/>
+                <circle cx="168" cy="126" r="3" fill="#ffffff"/>
+
+                <!-- beak -->
+                <path d="M150 140 C140 144, 136 154, 150 160 C164 154, 160 144, 150 140Z" fill="#ffb23a"/>
+                <path d="M150 151 C142 153, 142 158, 150 160 C158 158, 158 153, 150 151Z" fill="#ff8f1f"/>
+
+                <!-- feet -->
+                <ellipse cx="125" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(-8 125 250)"/>
+                <ellipse cx="175" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(8 175 250)"/>
+
+                <!-- bow -->
+                <g transform="translate(150 106)">
+                  <circle cx="0" cy="0" r="6" fill="#ff86c2"/>
+                  <path d="M-6 0 C-22 -10, -30 10, -10 10 C-2 10, -2 2, -6 0Z" fill="#ff5ca8"/>
+                  <path d="M6 0 C22 -10, 30 10, 10 10 C2 10, 2 2, 6 0Z" fill="#ff5ca8"/>
+                </g>
+
+                <!-- scarf -->
+                <path d="M110 162 C130 150, 170 150, 190 162 C182 178, 118 178, 110 162Z"
+                      fill="rgba(255,92,168,.95)"/>
+                <path d="M148 170 C160 182, 168 198, 156 214 C140 200, 138 184, 148 170Z"
+                      fill="rgba(255,134,194,.95)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="smallNote" style="margin-top:14px; color:rgba(255,255,255,.72);">
+        Made with love ❄️💗
+      </div>
+    </section>
+
+    <!-- VIEW: Sad -->
+    <section class="view" id="viewSad">
+      <div class="layout">
+        <div>
+          <h1>oh… okay 😔</h1>
+          <p>That’s alright. The penguin will be okay… eventually.</p>
+          <div class="smallNote">💔 Broken hearts only appear when you click inside the sad box.</div>
+
+          <div class="buttons">
+            <button class="yes" id="sadPlayBtn">🎵 Play (1:36–1:58)</button>
+            <button class="yes" id="sadStopBtn" style="background:linear-gradient(180deg,#ffd1ea,#c5d2ff); color:#141424;">Stop</button>
+          </div>
+        </div>
+
+        <div class="scene">
+          <div class="speech">…sigh 🐧</div>
+          <div class="sadBox" id="sadBox">
+            <img src="./nihilist-penguin.gif" alt="sad penguin gif"
+                 onerror="this.style.display='none'">
+            <div id="sadStatus" class="smallNote"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <audio id="heartbeat" src="./heartbeat.mp3" preload="auto" loop></audio>
+  <audio id="sadAudio" src="./LifeofRam.mp3" preload="auto"></audio>
+
+  <script>
+    // ======= Views =======
+    const viewIntro = document.getElementById('viewIntro');
+    const viewQuestion = document.getElementById('viewQuestion');
+    const viewSad = document.getElementById('viewSad');
+
+    // ======= UI elements =======
+    const askBtn = document.getElementById('askBtn');
+    const declineBtn = document.getElementById('declineBtn');
+
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const note = document.getElementById('note');
+    const speech = document.getElementById('speech');
+
+    const stage = document.getElementById('stage');
+    const maleWrap = document.getElementById('maleWrap');
+    const femaleWrap = document.getElementById('femaleWrap');
+    const pebble = document.getElementById('pebble');
+
+    const finalOverlay = document.getElementById('finalOverlay');
+    const confetti = document.getElementById('confetti');
+
+    // Sad
+    const sadBox = document.getElementById('sadBox');
+    const sadPlayBtn = document.getElementById('sadPlayBtn');
+    const sadStopBtn = document.getElementById('sadStopBtn');
+    const sadAudio = document.getElementById('sadAudio');
+    const sadStatus = document.getElementById('sadStatus');
+
+    // Heartbeat
+    const heartbeat = document.getElementById('heartbeat');
+
+    // ======= State =======
+    let heartMode = 'love'; // 'love' | 'break'
+    let noScootEnabled = false;
+    let yesLocked = false;
+
+    // ======= Helpers =======
+    function showView(viewToShow){
+      [viewIntro, viewQuestion, viewSad].forEach(v => v.classList.remove('active'));
+      viewToShow.classList.add('active');
+    }
+
+    function vibrate(pattern){
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    }
+
+    function spawnHeart(e){
+      // 💔 only inside sad box when in break mode
+      if (heartMode === 'break' && !sadBox.contains(e.target)) return;
+
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = (heartMode === 'break') ? '💔' : '💖';
+      h.style.setProperty('--x', e.clientX + 'px');
+      h.style.setProperty('--y', e.clientY + 'px');
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 950);
+    }
+    document.addEventListener('pointerdown', spawnHeart);
+
+    function launchConfetti(){
+      confetti.innerHTML = '';
+      const count = 90;
+      for (let i = 0; i < count; i++){
+        const piece = document.createElement('i');
+        piece.style.left = (Math.random() * 100) + 'vw';
+        piece.style.animationDelay = (Math.random() * 250) + 'ms';
+        piece.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
+        confetti.appendChild(piece);
+      }
+      setTimeout(() => confetti.innerHTML = '', 1650);
+    }
+
+    function fadeAudioTo(audioEl, target, ms){
+      const start = audioEl.volume;
+      const steps = Math.max(1, Math.floor(ms / 40));
+      let i = 0;
+      const timer = setInterval(() => {
+        i++;
+        const t = i / steps;
+        audioEl.volume = Math.min(1, Math.max(0, start + (target - start) * t));
+        if (i >= steps) clearInterval(timer);
+      }, 40);
+    }
+
+    async function safePlay(audioEl){
+      try { await audioEl.play(); return true; }
+      catch { return false; }
+    }
+
+    // ======= No button scoot (armed after transition) =======
+    function scoot(){
+      if (!noScootEnabled || yesLocked) return;
+
+      const card = document.querySelector('.card').getBoundingClientRect();
+      const btn = noBtn.getBoundingClientRect();
+
+      const maxX = card.width - btn.width - 24;
+      const maxY = card.height - btn.height - 24;
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = (card.left + 12 + x) + 'px';
+      noBtn.style.top  = (card.top + 12 + y) + 'px';
+      noBtn.style.zIndex = 20;
+
+      speech.textContent = "Wait-noooo, try again 😅";
+      note.textContent = "The “No” button is too nervous to be pressed.";
+    }
+    noBtn.addEventListener('mouseenter', scoot);
+    noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); scoot(); }, { passive:false });
+    noBtn.addEventListener('click', scoot);
+
+    // ======= Intro -> Question =======
+    askBtn.addEventListener('click', () => {
+      heartMode = 'love';
+      showView(viewQuestion);
+      vibrate(25);
+
+      // prevent hover bleed: arm scoot after fade is settled
+      noScootEnabled = false;
+      setTimeout(() => { noScootEnabled = true; }, 650);
+
+      // reset any stray absolute positioning from previous runs
+      noBtn.style.position = 'relative';
+      noBtn.style.left = '';
+      noBtn.style.top = '';
+      noBtn.style.zIndex = '';
+      note.textContent = '';
+      speech.textContent = "Hey cutie… will you be my Valentine?";
+      yesLocked = false;
+
+      // reset stage positions
+      maleWrap.classList.remove('walking');
+      maleWrap.style.left = '42px';
+      femaleWrap.style.opacity = '0';
+      femaleWrap.style.transform = 'translateY(8px) scale(.98)';
+      pebble.style.opacity = '0';
+    });
+
+    // ======= Intro -> Sad =======
+    declineBtn.addEventListener('click', async () => {
+      heartMode = 'break';
+      showView(viewSad);
+      vibrate(80);
+
+      // stop heartbeat if it was playing
+      heartbeat.pause();
+      heartbeat.currentTime = 0;
+
+      // prep sad audio segment (1:36–1:58)
+      sadAudio.pause();
+      sadAudio.currentTime = 96;
+      sadAudio.volume = 0;
+      sadStatus.textContent = '';
+
+      // stop at 1:58
+      const stopAt = 118;
+      sadAudio.ontimeupdate = () => {
+        if (sadAudio.currentTime >= stopAt){
+          fadeAudioTo(sadAudio, 0, 350);
+          setTimeout(() => sadAudio.pause(), 360);
+        }
+      };
+
+      // optional auto-start (user gesture happened)
+      const ok = await safePlay(sadAudio);
+      if (ok){
+        fadeAudioTo(sadAudio, 1, 800);
+        sadPlayBtn.textContent = "🎵 Playing…";
+        sadPlayBtn.disabled = true;
+        sadPlayBtn.style.opacity = '0.75';
+      } else {
+        sadStatus.textContent = "Tap Play to start music.";
+      }
+    });
+
+    // Sad controls
+    sadPlayBtn.addEventListener('click', async () => {
+      sadAudio.pause();
+      sadAudio.currentTime = 96;
+      sadAudio.volume = 0;
+      const ok = await safePlay(sadAudio);
+      if (ok){
+        fadeAudioTo(sadAudio, 1, 800);
+        sadPlayBtn.textContent = "🎵 Playing…";
+        sadPlayBtn.disabled = true;
+        sadPlayBtn.style.opacity = '0.75';
+      } else {
+        sadStatus.textContent = "Browser blocked playback. Try again.";
+      }
+    });
+
+    sadStopBtn.addEventListener('click', () => {
+      fadeAudioTo(sadAudio, 0, 500);
+      setTimeout(() => {
+        sadAudio.pause();
+        sadAudio.currentTime = 96;
+      }, 520);
+
+      sadPlayBtn.disabled = false;
+      sadPlayBtn.style.opacity = '1';
+      sadPlayBtn.textContent = "🎵 Play (1:36–1:58)";
+    });
+
+    // ======= YES Flow (continuous story) =======
+    yesBtn.addEventListener('click', async () => {
+      if (yesLocked) return;
+      yesLocked = true;
+
+      vibrate([25, 45, 25]);
+
+      // Confetti ONLY after Yes (we start later at celebration beat)
+      // Start heartbeat subtly during emotional moments
+      heartbeat.volume = 0;
+      await safePlay(heartbeat);
+      fadeAudioTo(heartbeat, 0.25, 900);  // subtle
+
+      // Update UI
+      yesBtn.textContent = "YES! 💞";
+      yesBtn.disabled = true;
+      yesBtn.style.opacity = '0.82';
+      note.textContent = "";
+      speech.textContent = "…wait… really? 🥹💖";
+
+      // 2-second drama pause
+      setTimeout(() => {
+        speech.textContent = "Okay… okay… I have something for you… 🪨✨";
+      }, 800);
+
+      // After 2 seconds: walk + pebble
+      setTimeout(() => startGiftSequence(), 2000);
+    });
+
+    function startGiftSequence(){
+      // reveal female penguin gently
+      femaleWrap.style.opacity = '1';
+      femaleWrap.style.transform = 'translateY(0) scale(1)';
+
+      // walk towards her
+      maleWrap.classList.add('walking');
+
+      // compute approximate target positions (works across widths)
+      const stageRect = stage.getBoundingClientRect();
+
+      // male target left closer to female
+      const maleTargetLeft = Math.max(160, Math.min(stageRect.width - 520, stageRect.width * 0.42));
+
+      // female stays on the right-ish; adjust if narrow
+      if (window.matchMedia('(max-width: 860px)').matches){
+        maleWrap.style.left = '18%';
+      } else {
+        maleWrap.style.left = `${maleTargetLeft}px`;
+      }
+
+      // place pebble near male hand, then fly to female
+      // initial pebble position (relative to stage)
+      const maleNow = maleWrap.getBoundingClientRect();
+      const pebbleStartX = (maleNow.left - stageRect.left) + 165;
+      const pebbleStartY = (maleNow.top - stageRect.top) + 155;
+
+      pebble.style.left = `${pebbleStartX}px`;
+      pebble.style.top  = `${pebbleStartY}px`;
+      pebble.style.opacity = '1';
+
+      // after a beat, “offer” pebble to female
+      setTimeout(() => {
+        speech.textContent = "Bujjieee… for you 💎🐧";
+        const femaleNow = femaleWrap.getBoundingClientRect();
+        const pebbleEndX = (femaleNow.left - stageRect.left) + 70;
+        const pebbleEndY = (femaleNow.top - stageRect.top) + 160;
+
+        pebble.style.left = `${pebbleEndX}px`;
+        pebble.style.top  = `${pebbleEndY}px`;
+      }, 700);
+
+      // acceptance moment
+      setTimeout(() => {
+        femaleWrap.classList.add('accept');
+        setTimeout(() => femaleWrap.classList.remove('accept'), 800);
+        speech.textContent = "She took it!! 😭💖";
+
+        // celebration
+        launchConfetti();
+
+        // heartbeat fades out gently as we settle into happiness
+        fadeAudioTo(heartbeat, 0, 900);
+        setTimeout(() => { heartbeat.pause(); heartbeat.currentTime = 0; }, 950);
+
+        // final overlay
+        setTimeout(() => {
+          finalOverlay.classList.add('show');
+          vibrate(30);
+        }, 900);
+      }, 2400);
+    }
+
+    // Safety: if user reloads while in question state, avoid instant scoot.
+    window.addEventListener('focus', () => {
+      if (viewQuestion.classList.contains('active')){
+        noScootEnabled = false;
+        setTimeout(() => { noScootEnabled = true; }, 450);
+      }
+    });
+  </script>
 </body>
 </html>
