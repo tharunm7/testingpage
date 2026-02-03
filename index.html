@@ -195,24 +195,12 @@
       position: fixed;
       left: var(--x, 50%);
       top: var(--y, 50%);
-      width: 18px; height: 18px;
-      transform: translate(-50%, -50%) rotate(45deg);
-      background: linear-gradient(180deg, var(--pink), var(--pink2));
-      border-radius: 4px;
+      font-size: 24px;
       pointer-events: none;
       opacity: 0;
       animation: floatUp 900ms ease-out forwards;
-      filter: drop-shadow(0 10px 18px rgba(255,92,168,.25));
+      user-select: none;
     }
-    .heart::before, .heart::after {
-      content:"";
-      position:absolute;
-      width: 18px; height: 18px;
-      background: inherit;
-      border-radius: 999px;
-    }
-    .heart::before { left: -9px; top: 0; }
-    .heart::after  { left: 0; top: -9px; }
     @keyframes floatUp {
       0% { opacity: 0; transform: translate(-50%, -50%) rotate(45deg) scale(.9); }
       15%{ opacity: 1; }
@@ -394,35 +382,60 @@
       sadScene.style.display = "block";
       sadScene.style.textAlign = "center";
       
-      // Add nihilist penguin image
+      // Add nihilist penguin GIF
       const penguinImg = document.createElement('img');
-      penguinImg.src = '1770089605399_image.png';
+      penguinImg.src = 'nihilist-penguin.gif';  // Using the GIF file
       penguinImg.alt = 'Nihilist Penguin';
-      penguinImg.style.maxWidth = '80%';
+      penguinImg.style.maxWidth = '600px';
+      penguinImg.style.width = '100%';
       penguinImg.style.borderRadius = '12px';
       penguinImg.style.margin = '20px auto';
       penguinImg.style.display = 'block';
+      penguinImg.onload = function() {
+        console.log('✅ GIF loaded successfully!');
+      };
       penguinImg.onerror = function() {
-        console.error('Failed to load image. Make sure 1770089605399_image.png is in the same folder as the HTML file.');
+        console.error('❌ Failed to load GIF: nihilist-penguin.gif');
+        console.error('Make sure the file nihilist-penguin.gif is uploaded to your GitHub repository!');
         this.style.display = 'none';
         const errorText = document.createElement('p');
-        errorText.textContent = '🐧';
-        errorText.style.fontSize = '120px';
+        errorText.textContent = '❌ GIF file not found. Please upload nihilist-penguin.gif to GitHub.';
+        errorText.style.color = '#ff6b6b';
+        errorText.style.fontSize = '18px';
+        errorText.style.marginTop = '40px';
         sadScene.appendChild(errorText);
       };
       sadScene.appendChild(penguinImg);
       
-      // Add hidden audio player that autoplays the Life of Ram clip (1:36-1:58)
+      // Add audio player with play button (no autoplay)
       const audio = document.createElement('audio');
-      audio.autoplay = true;
       audio.src = 'LifeofRam.mp3#t=96,118'; // Start at 96s (1:36), end at 118s (1:58)
+      audio.onloadeddata = function() {
+        console.log('✅ Audio loaded successfully!');
+      };
       audio.onerror = function() {
-        console.error('Failed to load audio. Make sure LifeofRam.mp3 is in the same folder as the HTML file.');
+        console.error('❌ Failed to load audio: LifeofRam.mp3');
+        console.error('Make sure the file LifeofRam.mp3 is uploaded to your GitHub repository!');
       };
       sadScene.appendChild(audio);
       
-      // Try to play (some browsers require user interaction first)
-      audio.play().catch(e => console.log('Autoplay may be blocked by browser. User interaction required.', e));
+      // Create play button
+      const playBtn = document.createElement('button');
+      playBtn.textContent = '🎵 Play Music';
+      playBtn.className = 'yes';
+      playBtn.style.cssText = 'margin-top: 30px; padding: 15px 30px; font-size: 18px;';
+      playBtn.onclick = () => {
+        audio.play().then(() => {
+          playBtn.textContent = '🎵 Playing...';
+          playBtn.disabled = true;
+          playBtn.style.opacity = '0.7';
+          playBtn.style.cursor = 'default';
+        }).catch(e => {
+          console.error('Failed to play audio:', e);
+          playBtn.textContent = '❌ Error playing audio';
+        });
+      };
+      sadScene.appendChild(playBtn);
     });
 
     // Valentine page interactions
@@ -432,10 +445,11 @@
     const note = document.getElementById('note');
     const confetti = document.getElementById('confetti');
 
-    // Make hearts wherever they click/tap
+    // Make broken hearts wherever they click/tap
     document.addEventListener('pointerdown', (e) => {
       const h = document.createElement('div');
       h.className = 'heart';
+      h.textContent = '💔'; // Broken heart emoji
       h.style.setProperty('--x', e.clientX + 'px');
       h.style.setProperty('--y', e.clientY + 'px');
       document.body.appendChild(h);
