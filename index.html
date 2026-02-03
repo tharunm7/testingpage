@@ -214,13 +214,7 @@
       z-index:3;
     }
     .speech::after{
-      content:"";
-      position:absolute;
-      bottom:-10px; left: 24px;
-      width: 18px; height: 18px;
-      background: rgba(255,255,255,.92);
-      transform: rotate(45deg);
-      border-radius: 4px;
+    display:none;
     }
     @keyframes pop{
       0%,100% { transform: translateY(0) rotate(-1deg); }
@@ -491,7 +485,7 @@
                 <ellipse cx="175" cy="250" rx="22" ry="10" fill="#ffb23a" transform="rotate(8 175 250)"/>
                 <g transform="translate(210 150) scale(.9)">
                   <path d="M20 8 C20 3, 16 0, 12 0 C9 0, 6 2, 5 5 C4 2, 1 0, -2 0 C-6 0, -10 3, -10 8 C-10 14, -3 18, 5 26 C13 18, 20 14, 20 8Z"
-                        fill="url(#gradMale)"/>
+                    fill="url(#gradMale)"/>
                   <defs>
                     <linearGradient id="gradMale" x1="0" y1="0" x2="0" y2="26">
                       <stop offset="0" stop-color="#ff5ca8"/>
@@ -764,6 +758,7 @@
   noBtn.style.position = 'absolute';
   noBtn.style.left = x + 'px';
   noBtn.style.top = y + 'px';
+  noBtn.style.zIndex = 100; // ensure clickable above penguin scene
 };
 
   // ======= YES FLOW =======
