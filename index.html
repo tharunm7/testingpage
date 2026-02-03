@@ -717,7 +717,9 @@
     showView(viewIntro);
   };
 
-  // ======= Shy No Button (CLAMPED & PERSISTENT) =======
+    // ======= Shy No Button (CLAMPED, CLICKABLE, REACTIVE) =======
+
+  // Scoot on hover
   noBtn.onmouseenter = () => {
   if (!noScootEnabled || yesLocked) return;
 
@@ -726,7 +728,7 @@
 
   const padding = 20;
 
-  // Clamp movement strictly inside the card
+  // Keep No fully inside the card
   const minX = padding;
   const maxX = card.width - btn.width - padding;
   const minY = padding;
@@ -738,7 +740,18 @@
   noBtn.style.position = 'absolute';
   noBtn.style.left = x + 'px';
   noBtn.style.top = y + 'px';
-  noBtn.style.zIndex = 100; // always clickable
+  noBtn.style.zIndex = 100; // always above penguin scene
+  };
+
+  // React on click (Page 2 only)
+  noBtn.onclick = () => {
+  if (yesLocked) return;
+
+  speech.textContent = 'Seems like you picked incorrect options';
+  vibrate(40);
+
+  // Optional: nudge it again so it still feels shy
+  noBtn.onmouseenter();
   };
 
   // ======= YES FLOW =======
